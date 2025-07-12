@@ -1,4 +1,4 @@
-name: Terraform Github
+name: Terraform usecase three 
 
 on:
   push:
