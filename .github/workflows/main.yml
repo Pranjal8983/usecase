@@ -7,8 +7,9 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
 
-    env:
-      WORKING_DIR: ./UC2
+    defaults:
+      run:
+        working-directory: UC2
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -21,7 +22,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: ap-south-1
+          aws-region: us-east-1
 
       # TFLint Setup and Run
       - name: Set up TFLint
@@ -30,28 +31,26 @@ jobs:
           tflint_version: latest
       - name: Initialize TFLint
         run: tflint --init
-        working-directory: ${{ env.WORKING_DIR }}
+        
 
       - name: Run TFLint
         run: tflint -f compact
-        working-directory: ${{ env.WORKING_DIR }}
-
+        
       - name: Terraform Init
         run: terraform init
-        working-directory: ${{ env.WORKING_DIR }}
+        
       
       - name: Terraform Syntax Checking
         run: terraform fmt
-        working-directory: ${{ env.WORKING_DIR }}
-
+        
       - name: Terraform Code Validation
         run: terraform validate
-        working-directory: ${{ env.WORKING_DIR }}
+        
 
       - name: Terraform Plan
         run: terraform plan
-        working-directory: ${{ env.WORKING_DIR }}
+        
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
-        working-directory: ${{ env.WORKING_DIR }}
+       
