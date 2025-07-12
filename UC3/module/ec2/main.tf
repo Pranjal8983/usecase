@@ -8,7 +8,7 @@ resource "aws_instance" "ec2"{
     subnet_id = var.public_subnets[0]
     vpc_security_group_ids = [var.sg_id]
     associate_public_ip_address = true
-    user_data = file("${path.module}/userdata-0.sh")
+    user_data = file("${path.module}/userdata.sh")
     tags = {
       Name = "Instance-0"
     }
