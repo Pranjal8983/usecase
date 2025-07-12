@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      WORKING_DIR: ./UC-02
+      WORKING_DIR: ./UC2
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
