@@ -7,6 +7,8 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
 
+    env:
+      WORKING_DIR: ./UC-02
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -28,21 +30,28 @@ jobs:
           tflint_version: latest
       - name: Initialize TFLint
         run: tflint --init
+        working-directory: ${{ env.WORKING_DIR }}
 
       - name: Run TFLint
         run: tflint -f compact
+        working-directory: ${{ env.WORKING_DIR }}
 
       - name: Terraform Init
         run: terraform init
+        working-directory: ${{ env.WORKING_DIR }}
       
       - name: Terraform Syntax Checking
         run: terraform fmt
+        working-directory: ${{ env.WORKING_DIR }}
 
       - name: Terraform Code Validation
         run: terraform validate
+        working-directory: ${{ env.WORKING_DIR }}
 
       - name: Terraform Plan
         run: terraform plan
+        working-directory: ${{ env.WORKING_DIR }}
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
+        working-directory: ${{ env.WORKING_DIR }}
