@@ -38,8 +38,8 @@ jobs:
         run: |
           cat <<EOF > terraform.tfvars
           sns_topic_name = "s3-sns-topic"
-          bucket_input_name = "non-resized-image-pranjal"
-          bucket_output_name = "resized-image-pranjal"
+          bucket_input_name = "non-resized-image-pranjal-72312"
+          bucket_output_name = "resized-image-pranjal-72312"
           lambda_s3_bucket = "pranjal71025"
           lambda_s3_key = "lambda.zip"
           lambda_name = "image-resize-lambda-function"
