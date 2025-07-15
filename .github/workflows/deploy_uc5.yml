@@ -39,11 +39,11 @@ jobs:
           sns_topic_name = "s3-sns-topic"
           bucket_input_name = "non-resized-image-pranjal"
           bucket_output_name = "resized-image-pranjal"
-          lambda_s3_bucket = "layer-908023"
+          lambda_s3_bucket = "pranjal71025"
           lambda_s3_key = "lambda.zip"
           lambda_name = "image-resize-lambda-function"
           email = "pranjal.deka@hcltech.com"
-          lambda_role = ""
+          lambda_role = "arn:aws:iam::836837432401:role/service-role/image-resize-lambda-function-role-68p530eb"
           EOF
 
     
