@@ -10,11 +10,6 @@ module "s3_bucket" {
   source             = "./modules/s3"
   input_bucket_name  = var.bucket_input_name
   output_bucket_name = var.bucket_output_name
-  
-  enable_event_notification = true
-  topic_arn = module.sns_topic.topic_arn
-  events =  ["s3:ObjectCreated:*"]
-  bucket_depends_on = [module.sns_topic]
 }
 
 module "lambda" {
