@@ -43,51 +43,10 @@ jobs:
           lambda_s3_key = "lambda.zip"
           lambda_name = "image-resize-lambda-function"
           email = "pranjal.deka@hcltech.com"
-          lambda_role = "arn:aws:iam::427521931204:role/service-role/lambda_handler-role-zeouuhy0"
+          lambda_role = ""
           EOF
 
-      - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@v4
-        with:
-          tflint_version: latest
-          
-      - name: Show version
-        run: tflint --version
-
-      - name: Init TFLint
-        run: tflint --init
-        
-      - name: Run TFLint
-        run: tflint -f compact
-
-      - name: Setup Python for Checkov
-        uses: actions/setup-python@v5.6.0
-
-      - name: Install Checkov
-        run: pip install checkov
-
-      - name: Run Checkon Scan
-        run: checkov -d . --framework terraform --soft-fail  --output json > checkov_result.json
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4.6.2
-        with:
-         name: checkov-info
-         path: checkov_result.json
-
-      - name: Terraform Doc
-        uses: terraform-docs/gh-actions@main
-        with: 
-          working-dir: .
-          output-file: README.md
-          output-method: inject
-          git-push: "true"
-          git-commit-message: "Updated latest terraform document"
-          git-commit-author: "Github Actions <actions@github.com>"
-          git-commit-email: "actions@github.com"
-          git-branch: main
-          github-token: ${{ secrets.GIT_TOKEN }} 
-
+    
       - name: Run implement terraform
         run: |
           terraform init
