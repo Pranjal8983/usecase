@@ -1,0 +1,98 @@
+name: Image Resizing using Lambda Function
+
+on:
+ workflow_dispatch:
+  #push:
+    # paths:
+    #   - 'usecase-5/**'
+    #   - '.github/workflows/deploy_uc5.yml'
+    # branches: main
+  
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  terraform-uc5:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: usecase-5
+
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2.0.3
+
+      - name: SetUp AWS
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.OIDC_ROLE }}
+
+      - name: Create terraform.tfvars
+        run: |
+          cat <<EOF > terraform.tfvars
+          sns_topic_name = "s3-sns-topic"
+          bucket_input_name = "non-resized-image-pranjal"
+          bucket_output_name = "resized-image-pranjal"
+          lambda_s3_bucket = "layer-908023"
+          lambda_s3_key = "lambda.zip"
+          lambda_name = "image-resize-lambda-function"
+          email = "pranjal.deka@hcltech.com"
+          lambda_role = "arn:aws:iam::427521931204:role/service-role/lambda_handler-role-zeouuhy0"
+          EOF
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+          
+      - name: Show version
+        run: tflint --version
+
+      - name: Init TFLint
+        run: tflint --init
+        
+      - name: Run TFLint
+        run: tflint -f compact
+
+      - name: Setup Python for Checkov
+        uses: actions/setup-python@v5.6.0
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Run Checkon Scan
+        run: checkov -d . --framework terraform --soft-fail  --output json > checkov_result.json
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+         name: checkov-info
+         path: checkov_result.json
+
+      - name: Terraform Doc
+        uses: terraform-docs/gh-actions@main
+        with: 
+          working-dir: .
+          output-file: README.md
+          output-method: inject
+          git-push: "true"
+          git-commit-message: "Updated latest terraform document"
+          git-commit-author: "Github Actions <actions@github.com>"
+          git-commit-email: "actions@github.com"
+          git-branch: main
+          github-token: ${{ secrets.GIT_TOKEN }} 
+
+      - name: Run implement terraform
+        run: |
+          terraform init
+          terraform fmt -recursive
+          terraform validate
+          terraform plan -var-file=terraform.tfvars
+          terraform destroy -var-file=terraform.tfvars -auto-approve
+          
