@@ -5,7 +5,7 @@ test "start_lambda_function_configured_correctly" {
     lambda_function = {
       start_name = "start-ec2-lambda"
       stop_name  = "stop-ec2-lambda"
-      role       = "arn:aws:iam::123456789012:role/lambda-role"
+      role       = "arn:aws:iam::836837432401:role/Ec2-starrt-lambda"
     }
     instance_id = "i-0f1f515ade621a4ae"
     region      = "us-east-1"
