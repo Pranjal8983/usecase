@@ -1,40 +1,31 @@
-module "ec-2" {
-  source         = "./modules/ec-2"
-  instance_type  = var.instance_type
-  ami_id         = var.ami_id
-  instance_count = var.instance_count
+module "lambda" {
+  source = "./modules/lambda"
+
+  lambda_function = {
+    start_name = "start-lambda"
+    stop_name  = "stop-lambda"
+    role       = var.lambda_role
+  }
+  instance_id = var.instance_id
+  region      = var.region
 }
 
-module "lambda_start" {
-  source             = "./modules/lambda"
-  function_name      = "start-ec2"
-  handler            = "start_ec2.lambda_handler"
-  runtime            = var.lambda_runtime
-  lambda_source      = "${path.module}/usecase-6/modules/lambda/start_ec2.py"
-  ec2_instance_id    = module.ec-2.instance_id 
-  action             = "start"
+module "start_ec2_schedule" {
+  source              = "./modules/event"
+  name                = "start-ec2-schedule"
+  description         = "Trigger Lambda to start EC2"
+  schedule_expression = "cron(*/5 * * * ? *)"
+  lambda_arn          = module.lambda.start_lambda_function_arn
+  lambda_name         = module.lambda.start_lambda_function_name
+  scheduler_role_arn  = var.scheduler_role_arn
 }
 
-module "lambda_stop" {
-  source             = "./modules/lambda"
-  function_name      = "stop-ec2"
-  handler            = "stop_ec2.lambda_handler"
-  runtime            = var.lambda_runtime
-  lambda_source      = "${path.module}/usecase-6/modules/lambda/stop_ec2.py"
-  ec2_instance_id    = module.ec-2.instance_id 
-  action             = "stop"
-}
-
-module "scheduler_start" {
-  source               = "./modules/scheduler"
-  rule_name            = "start-ec2-schedule"
-  schedule_expression  = var.start_cron
-  lambda_function_arn  = module.lambda_start.lambda_function_arn
-}
-
-module "scheduler_stop" {
-  source               = "./modules/scheduler"
-  rule_name            = "stop-ec2-schedule"
-  schedule_expression  = var.stop_cron
-  lambda_function_arn  = module.lambda_stop.lambda_function_arn
+module "stop_ec2_schedule" {
+  source              = "./modules/event"
+  name                = "stop-ec2-schedule"
+  description         = "Trigger Lambda to stop EC2"
+  schedule_expression = "cron(*/6* * * ? *)"
+  lambda_arn          = module.lambda.stop_lambda_function_arn
+  lambda_name         = module.lambda.stop_lambda_function_name
+  scheduler_role_arn  = var.scheduler_role_arn
 }
