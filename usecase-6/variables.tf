@@ -1,24 +1,21 @@
-#variable "region" {
-#  type = string
-#}
-variable "ami_id" {
+variable "lambda_name" {
+  type        = string
+  description = "Lambda function name"
+}
+
+variable "lambda_role" {
+  type        = string
+  description = "Lambda IAM role arn"
+}
+
+variable "instance_id" {
   type = string
 }
-variable "instance_type" { 
-  type = string
-  default = "t3.micro" 
-}
-variable "instance_count" { 
-  type = number
-  default = 1 
-}
-variable "lambda_runtime" {
-  type = string
-  default = "python3.9" 
-}
-variable "start_cron" {
+
+variable "region" {
   type = string
 }
-variable "stop_cron" {
+
+variable "scheduler_role_arn" {
   type = string
 }
