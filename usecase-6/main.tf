@@ -10,7 +10,7 @@ module "lambda_start" {
   function_name      = "start-ec2"
   handler            = "start_ec2.lambda_handler"
   runtime            = var.lambda_runtime
-  lambda_source      = "${path.module}/modules/lambda/start_ec2.py"
+  lambda_source      = "${path.module}/usecase-6/modules/lambda/start_ec2.py"
   ec2_instance_id    = module.ec2.instance_id 
   action             = "start"
 }
@@ -20,7 +20,7 @@ module "lambda_stop" {
   function_name      = "stop-ec2"
   handler            = "stop_ec2.lambda_handler"
   runtime            = var.lambda_runtime
-  lambda_source      = "${path.module}/modules/lambda/stop_ec2.py"
+  lambda_source      = "${path.module}/usecase-6/modules/lambda/stop_ec2.py"
   ec2_instance_id    = module.ec2.instance_id 
   action             = "stop"
 }
