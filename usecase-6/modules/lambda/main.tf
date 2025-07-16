@@ -12,13 +12,13 @@ data "archive_file" "stop_lambda" {
 
 
 resource "aws_lambda_function" "start_lambda" {
-  function_name = var.lambda_function.start_name
+  function_name = var.lambda_function.start_name  # pull from variable
   role          = var.lambda_function.role
-  handler       = "start_lambda.lambda_handler"
+  handler       = "start_lambda.lambda_handler"  #specifies the file and function that lambda should call
   runtime       = "python3.9"
-  memory_size   = 128
-  timeout       = 30
-  publish       = true
+  memory_size   = 128  # allcoted 128 of memory
+  timeout       = 30  #lambda will time out after 30 second
+  publish       = true #publish new version of the lambda function upon deployment.
   filename      = data.archive_file.start_lambda.output_path
   environment {
     variables = {
