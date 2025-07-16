@@ -50,6 +50,12 @@ jobs:
 
       - name: Run Checkon Scan
         run: checkov -d . --framework terraform --soft-fail --output json > checkov_output.json
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+         name: checkov-info
+         path: checkov_result.json
         
 
       - name: Run implement terraform
