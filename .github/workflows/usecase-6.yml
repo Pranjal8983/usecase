@@ -50,6 +50,7 @@ jobs:
 
       - name: Run Checkon Scan
         run: checkov -d . --framework terraform --soft-fail --output json > checkov_output.json
+        
 
       - name: Run implement terraform
         run: |
