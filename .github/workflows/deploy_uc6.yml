@@ -16,9 +16,9 @@ jobs:
   terraform-uc6:
     runs-on: ubuntu-latest
 
-    # defaults:
-    #   run:
-    #     working-directory: usecase-6
+    defaults:
+      run:
+        working-directory: usecase-6
 
     steps:
       - name: Code checkout
