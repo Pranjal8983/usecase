@@ -60,7 +60,7 @@ jobs:
 
       - name: Run implement terraform
         run: |
-          #terraform init
+          terraform init
           #terraform fmt -recursive
           # terraform validate
           #terraform plan -var-file=terraform.tfvars
