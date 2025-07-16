@@ -1,12 +1,12 @@
 module "ec-2" {
-  source         = "./modules/ec-2"
+  source         = "./usecase-6/modules/ec-2"
   instance_type  = var.instance_type
   ami_id         = var.ami_id
   instance_count = var.instance_count
 }
 
 module "lambda_start" {
-  source             = "./modules/lambda"
+  source             = "./usecase-6/modules/lambda"
   function_name      = "start-ec2"
   handler            = "start_ec2.lambda_handler"
   runtime            = var.lambda_runtime
@@ -16,7 +16,7 @@ module "lambda_start" {
 }
 
 module "lambda_stop" {
-  source             = "./modules/lambda"
+  source             = "./usecase-6/modules/lambda"
   function_name      = "stop-ec2"
   handler            = "stop_ec2.lambda_handler"
   runtime            = var.lambda_runtime
