@@ -1,3 +1,8 @@
 #region         = "us-east-1"
 #ami_id         = "ami-020cba7c55df1f615"
 instance_id = "i-0f1f515ade621a4ae"
+lambda_name        = "lambda"
+lambda_role        = "arn:aws:iam::836837432401:role/Ec2-starrt-lambda"
+instance_id        = "i-0b0bac87ba84f736d"
+region             = "us-east-1"
+scheduler_role_arn = "arn:aws:iam::836837432401:role/schedular_role"
