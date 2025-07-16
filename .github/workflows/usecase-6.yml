@@ -22,7 +22,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: SetUp AWS
+      - name: SetUp AWS OIDC
         uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
           aws-region: ${{ secrets.AWS_REGION }}
