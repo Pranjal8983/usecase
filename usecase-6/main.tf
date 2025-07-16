@@ -26,14 +26,14 @@ module "lambda_stop" {
 }
 
 module "scheduler_start" {
-  source               = "./modules/scheduler"
+  source               = "/modules/scheduler"
   rule_name            = "start-ec2-schedule"
   schedule_expression  = var.start_cron
   lambda_function_arn  = module.lambda_start.lambda_function_arn
 }
 
 module "scheduler_stop" {
-  source               = "./modules/scheduler"
+  source               = "/modules/scheduler"
   rule_name            = "stop-ec2-schedule"
   schedule_expression  = var.stop_cron
   lambda_function_arn  = module.lambda_stop.lambda_function_arn
