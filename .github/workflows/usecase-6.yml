@@ -41,9 +41,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Pull terraform.tfvars from S3
-        run: |
-          aws s3 cp s3://terraform-usecases-batch6/env/usecase-6/terraform.tfvars .
+      # - name: Pull terraform.tfvars from S3
+      #   run: |
+      #     aws s3 cp s3://terraform-usecases-batch6/env/usecase-6/terraform.tfvars .
 
       # - name: Install OPA
       #   run: |
