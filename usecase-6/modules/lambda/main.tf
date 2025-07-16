@@ -1,60 +1,46 @@
-data "archive_file" "lambda_zip" {
+data "archive_file" "start_lambda" {
   type        = "zip"
-  source_file = var.lambda_source
-  output_path = "${path.module}/${var.function_name}.zip"
+  source_file = "${path.module}/start_lambda.py"
+  output_path = "${path.module}/start_lambda.zip"
 }
 
-resource "aws_iam_role" "lambda_role" {
-  name = "${var.function_name}-role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Effect = "Allow",
-      Principal = { Service = "lambda.amazonaws.com" },
-      Action    = "sts:AssumeRole"
-    }]
-  })
+data "archive_file" "stop_lambda" {
+  type        = "zip"
+  source_file = "${path.module}/stop_lambda.py"
+  output_path = "${path.module}/stop_lambda.zip"
 }
 
-resource "aws_iam_policy" "ec2_policy" {
-  name = "${var.function_name}-ec2-policy"
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = var.action == "start" ? ["ec2:StartInstances","ec2:DescribeInstances"] : ["ec2:StopInstances","ec2:DescribeInstances"]
-        Resource = "*"
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
-}
 
-resource "aws_iam_role_policy_attachment" "attach" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = aws_iam_policy.ec2_policy.arn
-}
-
-resource "aws_lambda_function" "this" {
-  function_name    = var.function_name
-  filename         = data.archive_file.lambda_zip.output_path
-  source_code_hash = filebase64sha256(data.archive_file.lambda_zip.output_path)
-  handler          = var.handler
-  runtime          = var.runtime
-  role             = aws_iam_role.lambda_role.arn
-  timeout          = 315
+resource "aws_lambda_function" "start_lambda" {
+  function_name = var.lambda_function.start_name
+  role          = var.lambda_function.role
+  handler       = "start_lambda.lambda_handler"
+  runtime       = "python3.9"
+  memory_size   = 128
+  timeout       = 30
+  publish       = true
+  filename      = data.archive_file.start_lambda.output_path
   environment {
     variables = {
-      INSTANCE_ID = var.ec2_instance_id
+      instance_id = var.instance_id
+      region      = var.region
+    }
+  }
+}
+
+resource "aws_lambda_function" "stop_lambda" {
+  function_name = var.lambda_function.stop_name
+  role          = var.lambda_function.role
+  handler       = "stop_lambda.lambda_handler"
+  runtime       = "python3.9"
+  memory_size   = 128
+  timeout       = 30
+  publish       = true
+  filename      = data.archive_file.stop_lambda.output_path
+  environment {
+    variables = {
+      instance_id = var.instance_id
+      region      = var.region
     }
   }
 }
