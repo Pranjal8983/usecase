@@ -27,16 +27,17 @@ jobs:
         with:
           aws-region: ${{ secrets.AWS_REGION }}
           role-to-assume: ${{ secrets.OIDC_ROLE }}
-      - name: Setup TFLint
+      - name: Set up TFLint
         uses: terraform-linters/setup-tflint@v4
         with:
           tflint_version: latest
-          
-      - name: Show version
-        run: tflint --version
 
-      - name: Init TFLint
+      - name: Initialize TFLint
         run: tflint --init
+
+      - name: Run TFLint
+        run: tflint -f compact
+        continue-on-error: true
         
       # - name: Run TFLint
       #   #run: tflint -f compact
