@@ -1,22 +1,22 @@
 name: Deploy Lambda with Docker and Terraform
 
-on:
-  push:
-    branches: [ "main" ]
+# on:
+#   push:
+#     branches: [ "main" ]
 
 # env:
 #   AWS_REGION: us-east-1
   # ECR_REPOSITORY: my-ecr-repo
   # IMAGE_TAG: latest
-  OUTPUT_DIR: output
+#   OUTPUT_DIR: output
 
-jobs:
+# jobs:
   # build-and-push-docker:
   #   name: Build and Push Docker Image
   #   runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
       # - name: Configure AWS credentials
       #   uses: aws-actions/configure-aws-credentials@v4
@@ -66,16 +66,18 @@ jobs:
 
       # - name: Terraform Apply
       #   run: terraform apply -auto-approve tfplan
-
-  
-    opa-policy-check:
-    name: OPA Policy Check
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./terraform
-
-    steps:
+on:
+  push:
+    branches: [ "main" ]
+    
+jobs:
+  opa-policy-check:
+   name: OPA Policy Check
+   runs-on: ubuntu-latest
+    # defaults:
+    #   run:
+    #     working-directory: ./terraform
+   steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
