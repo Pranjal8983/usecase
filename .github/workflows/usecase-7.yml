@@ -4,70 +4,71 @@ on:
   push:
     branches: [ "main" ]
 
-env:
-  AWS_REGION: us-east-1
-  ECR_REPOSITORY: my-ecr-repo
-  IMAGE_TAG: latest
+# env:
+#   AWS_REGION: us-east-1
+  # ECR_REPOSITORY: my-ecr-repo
+  # IMAGE_TAG: latest
   OUTPUT_DIR: output
 
 jobs:
-  build-and-push-docker:
-    name: Build and Push Docker Image
-    runs-on: ubuntu-latest
+  # build-and-push-docker:
+  #   name: Build and Push Docker Image
+  #   runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE }}
-          aws-region: ${{ env.AWS_REGION }}
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     role-to-assume: ${{ secrets.AWS_ROLE }}
+      #     aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, Tag, and Push Docker image
-        run: |
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REPOSITORY:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+      # - name: Build, Tag, and Push Docker image
+      #   run: |
+      #     docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+      #     docker tag $ECR_REPOSITORY:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+      #     docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
 
-  terraform-deploy:
-    name: Terraform Validate and Deploy
-    needs: build-and-push-docker
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./terraform
+  # terraform-deploy:
+  #   name: Terraform Validate and Deploy
+  #   needs: build-and-push-docker
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+    #     working-directory: ./terraform
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    # steps:
+    #   - name: Checkout code
+    #     uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE }}
-          aws-region: ${{ env.AWS_REGION }}
+    #   - name: Configure AWS credentials
+    #     uses: aws-actions/configure-aws-credentials@v4
+    #     with:
+    #       role-to-assume: ${{ secrets.AWS_ROLE }}
+    #       aws-region: ${{ env.AWS_REGION }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+    #   - name: Setup Terraform
+    #     uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Init
-        run: terraform init
+    #   - name: Terraform Init
+    #     run: terraform init
 
-      - name: Terraform Validate
-        run: terraform validate
+    #   - name: Terraform Validate
+    #     run: terraform validate
 
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
+    #   - name: Terraform Plan
+    #     run: terraform plan -out=tfplan
 
       # - name: Terraform Apply
       #   run: terraform apply -auto-approve tfplan
 
-  opa-policy-check:
+  
+    opa-policy-check:
     name: OPA Policy Check
     runs-on: ubuntu-latest
     defaults:
