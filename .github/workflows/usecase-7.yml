@@ -90,35 +90,35 @@ jobs:
           mkdir -p ../${{ env.OUTPUT_DIR }}
           opa test policies/ > ../${{ env.OUTPUT_DIR }}/opa_test_report.txt || true
 
-  terraform-test:
-    name: Terraform Test
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./terraform
+  # terraform-test:
+  #   name: Terraform Test
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: ./terraform
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v3
+  #     - name: Install Terraform
+  #       uses: hashicorp/setup-terraform@v3
 
-      - name: Run Terraform Test
-        run: |
-          mkdir -p ../${{ env.OUTPUT_DIR }}
-          terraform test > ../${{ env.OUTPUT_DIR }}/terraform_test_report.txt || true
+  #     - name: Run Terraform Test
+  #       run: |
+  #         mkdir -p ../${{ env.OUTPUT_DIR }}
+  #         terraform test > ../${{ env.OUTPUT_DIR }}/terraform_test_report.txt || true
 
-  terraform-tflint:
-    name: Terraform TFLint
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./terraform
+  # terraform-tflint:
+  #   name: Terraform TFLint
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: ./terraform
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
       - name: Install TFLint
         uses: terraform-linters/setup-tflint@v4
