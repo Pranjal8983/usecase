@@ -1,14 +1,15 @@
 name: Terraform Lint
 
 on:
-  push:
-    paths:
-      - '**.tf'
-      - '.tflint.hcl'
-  pull_request:
-    paths:
-      - '**.tf'
-      - '.tflint.hcl'
+ workflow_dispatch:
+  # push:
+  #   paths:
+  #     - '**.tf'
+  #     - '.tflint.hcl'
+  # pull_request:
+  #   paths:
+  #     - '**.tf'
+  #     - '.tflint.hcl'
 
 jobs:
   lint:
