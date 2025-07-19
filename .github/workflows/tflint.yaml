@@ -1,0 +1,45 @@
+name: Terraform Lint
+
+on:
+  push:
+    paths:
+      - '**.tf'
+      - '.tflint.hcl'
+  pull_request:
+    paths:
+      - '**.tf'
+      - '.tflint.hcl'
+
+jobs:
+  lint:
+    name: Run TFLint with Custom Rules
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go (for custom plugin)
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      - name: Build custom TFLint plugin
+        run: |
+          cd tflint-rules
+          go build -o ../tflint-custom-plugin
+          cd ..
+
+      - name: Install TFLint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
+      - name: Run TFLint and generate report
+        run: |
+          tflint --plugin-dir . --format json > tflint-report.json
+
+      - name: Upload TFLint report
+        uses: actions/upload-artifact@v3
+        with:
+          name: tflint-report
+          path: tflint-report.json
