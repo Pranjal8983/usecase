@@ -17,7 +17,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: usecase-7
+        working-directory: .
 
     steps:
       - name: terraform-docs
