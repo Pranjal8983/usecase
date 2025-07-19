@@ -12,6 +12,13 @@ on:
   #     - '**.tf'
   #     - '.tflint.hcl'
   #     - '**/README.md'
+permissions:
+   repository-projects: write
+   actions: write
+   checks: write
+   contents: write
+   deployments: write
+   id-token: write
 
 jobs:
   terraform-quality:
