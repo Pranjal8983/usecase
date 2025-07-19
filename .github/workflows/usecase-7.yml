@@ -27,6 +27,9 @@ jobs:
          output-file: README.md  # Update the README file with generated docs
          output-method: inject  # Inject the documentation into the README
          git-push: "true"
+
+         run: terraform-docs markdown table usecase-7 --output-file README.md --output-mode inject
+
          
       - name: Code checkout
         uses: actions/checkout@v4.2.2
