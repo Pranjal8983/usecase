@@ -1,134 +1,61 @@
-name: Deploy Lambda with Docker and Terraform
+name: Deploy container app using lambda
 
-# on:
-#   push:
-#     branches: [ "main" ]
-
-# env:
-#   AWS_REGION: us-east-1
-  # ECR_REPOSITORY: my-ecr-repo
-  # IMAGE_TAG: latest
-#   OUTPUT_DIR: output
-
-# jobs:
-  # build-and-push-docker:
-  #   name: Build and Push Docker Image
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     role-to-assume: ${{ secrets.AWS_ROLE }}
-      #     aws-region: ${{ env.AWS_REGION }}
-
-      # - name: Login to Amazon ECR
-      #   id: login-ecr
-      #   uses: aws-actions/amazon-ecr-login@v2
-
-      # - name: Build, Tag, and Push Docker image
-      #   run: |
-      #     docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
-      #     docker tag $ECR_REPOSITORY:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
-      #     docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
-
-  # terraform-deploy:
-  #   name: Terraform Validate and Deploy
-  #   needs: build-and-push-docker
-  #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-    #     working-directory: ./terraform
-
-    # steps:
-    #   - name: Checkout code
-    #     uses: actions/checkout@v4
-
-    #   - name: Configure AWS credentials
-    #     uses: aws-actions/configure-aws-credentials@v4
-    #     with:
-    #       role-to-assume: ${{ secrets.AWS_ROLE }}
-    #       aws-region: ${{ env.AWS_REGION }}
-
-    #   - name: Setup Terraform
-    #     uses: hashicorp/setup-terraform@v3
-
-    #   - name: Terraform Init
-    #     run: terraform init
-
-    #   - name: Terraform Validate
-    #     run: terraform validate
-
-    #   - name: Terraform Plan
-    #     run: terraform plan -out=tfplan
-
-      # - name: Terraform Apply
-      #   run: terraform apply -auto-approve tfplan
 on:
-  push:
-    branches: [ "main" ]
-    
+ workflow_dispatch:
+  
+permissions:
+  id-token: write
+  contents: write
+
 jobs:
-  opa-policy-check:
-   name: OPA Policy Check
-   runs-on: ubuntu-latest
-    # defaults:
-    #   run:
-    #     working-directory: ./terraform
-   steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  terraform-usecase-7:
+    runs-on: ubuntu-latest
 
-      - name: Install OPA
-        run: |
-          curl -L -o opa https://openpolicyagent.org/downloads/latest/opa_linux_amd64
-          chmod +x opa
-          sudo mv opa /usr/local/bin/
+    defaults:
+      run:
+        working-directory: usecase-7
 
-      - name: Run OPA policy checks
-        run: |
-          mkdir -p ../${{ env.OUTPUT_DIR }}
-          opa test policies/ > ../${{ env.OUTPUT_DIR }}/opa_test_report.txt || true
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4.2.2
 
-  # terraform-test:
-  #   name: Terraform Test
-  #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       working-directory: ./terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-
-  #     - name: Install Terraform
-  #       uses: hashicorp/setup-terraform@v3
-
-  #     - name: Run Terraform Test
-  #       run: |
-  #         mkdir -p ../${{ env.OUTPUT_DIR }}
-  #         terraform test > ../${{ env.OUTPUT_DIR }}/terraform_test_report.txt || true
-
-  # terraform-tflint:
-  #   name: Terraform TFLint
-  #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       working-directory: ./terraform
-
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-
-      - name: Install TFLint
+      - name: SetUp AWS OIDC
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.OIDC_ROLE }}
+      - name: Set up TFLint
         uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
 
-      - name: Init TFLint
+      - name: Initialize TFLint
         run: tflint --init
 
-      - name: Run TFLint and Save Report
+      - name: Setup Python for Checkov
+        uses: actions/setup-python@v5.6.0
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Run Checkon Scan
+        run: checkov -d . --framework terraform --soft-fail --output json > checkov_output.json
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+         name: checkov-info
+         path: checkov_output.json
+
+      - name: Run implement terraform
         run: |
-          mkdir -p ../${{ env.OUTPUT_DIR }}
-          tflint --format json > ../${{ env.OUTPUT_DIR }}/tflint_report.json || true
+          terraform init -reconfigure
+          # terraform test
+          # terraform fmt -recursive
+          # terraform validate
+          # terraform plan -var-file=terraform.tfvars
+          # terraform apply -var-file=terraform.tfvars -auto-approve
+          terraform destroy -var-file=terraform.tfvars -auto-approve
