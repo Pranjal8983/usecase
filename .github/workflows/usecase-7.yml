@@ -6,10 +6,6 @@ on:
 permissions:
   id-token: write
   contents: write
-  repository-projects: write
-  actions: write
-  checks: write
-  deployments: write
 
 jobs:
   terraform-usecase-7:
@@ -31,38 +27,7 @@ jobs:
         with:
           aws-region: ${{ secrets.AWS_REGION }}
           role-to-assume: ${{ secrets.OIDC_ROLE }}
-      - name: Set up TFLint
-        uses: terraform-linters/setup-tflint@v4
-        with:
-          tflint_version: latest
-
-      - name: Initialize TFLint
-        run: tflint --init
-
-      - name: Setup Python for Checkov
-        uses: actions/setup-python@v5.6.0
-
-      - name: Install Checkov
-        run: pip install checkov
-
-      - name: terraform-docs
-      - uses: actions/checkout@v3  # Checkout the repository code
-      - name: Install Terraform Docs
-        uses: terraform-docs/gh-actions@v1.4.1
-        with:
-          working-dir: usecase-7  # Use the current directory (adjust if needed)
-          output-file: README.md  # Update the README file with generated docs
-          output-method: inject  # Inject the documentation into the README
-          git-push: "true"
-
-      # - name: Run Checkon Scan
-      #   run: checkov -d . --framework terraform --soft-fail --output json > checkov_output.json
-
-      # - name: Upload build artifact
-      #   uses: actions/upload-artifact@v4.6.2
-      #   with:
-      #    name: checkov-info
-      #    path: checkov_output.json
+      
 
       - name: Run implement terraform
         run: |
