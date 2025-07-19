@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v3  # Checkout the repository code
 
       - name: Install Terraform Docs
-        uses: terraform-docs/gh-actions@main  # Action to generate Terraform documentation
+        uses: terraform-docs/gh-actions@v1.4.1
         with:
           working_dir: usecase-7  # Use the current directory (adjust if needed)
           output-file: README.md  # Update the README file with generated docs
