@@ -6,6 +6,10 @@ on:
 permissions:
   id-token: write
   contents: write
+  repository-projects: write
+  actions: write
+  checks: write
+  deployments: write
 
 jobs:
   terraform-usecase-7:
@@ -16,6 +20,14 @@ jobs:
         working-directory: usecase-7
 
     steps:
+      - name: terraform-docs
+        uses: terraform-docs/gh-actions@v1.4.1
+        with:
+         working-dir: usecase-7  # Use the current directory (adjust if needed)
+         output-file: README.md  # Update the README file with generated docs
+         output-method: inject  # Inject the documentation into the README
+         git-push: "true"
+         
       - name: Code checkout
         uses: actions/checkout@v4.2.2
 
