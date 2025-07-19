@@ -22,13 +22,12 @@ jobs:
     steps:
       - name: terraform-docs
         uses: terraform-docs/gh-actions@v1.4.1
-        with:
          # working-dir: usecase-8  # Use the current directory (adjust if needed)
          # output-file: README.md  # Update the README file with generated docs
          # output-method: inject  # Inject the documentation into the README
          # git-push: "true"
-
-         run: terraform-docs markdown table usecase-8 --output-file README.md --output-mode inject
+      - name: terra documents 
+        run: terraform-docs markdown table usecase-8 --output-file README.md --output-mode inject
 
          
       - name: Code checkout
