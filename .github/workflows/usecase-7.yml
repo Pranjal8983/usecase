@@ -1,20 +1,37 @@
 name: Terraform CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#     branches:
+#       - main
 
+# permissions:
+#   contents: read # Allow read access for checkout
+#   pull-requests: write # Allow writing comments for Checkov
+on:
+ workflow_dispatch:
+  
 permissions:
-  contents: read # Allow read access for checkout
-  pull-requests: write # Allow writing comments for Checkov
+  id-token: write
+  contents: write
+  repository-projects: write
+  actions: write
+  checks: write
+  deployments: write
 
 jobs:
-  terraform_validate:
+  terraform-usecase-7:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: .
+
+  # terraform_validate:
+  #   runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
