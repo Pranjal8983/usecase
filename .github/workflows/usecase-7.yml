@@ -38,8 +38,12 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+
+      - name: SetUp AWS OIDC
+        uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
-          terraform_version: 1.x.x # Specify your desired Terraform version, e.g., 1.5.7
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.OIDC_ROLE }}
 
       - name: Terraform fmt
         id: fmt
