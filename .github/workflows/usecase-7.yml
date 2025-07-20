@@ -239,7 +239,7 @@ jobs:
       - name: Run implement terraform
         run: |
           terraform init
-          terraform fmt -recursive
+          #terraform fmt -recursive
           terraform validate
           terraform plan -var-file=terraform.tfvars
           #terraform apply -var-file=terraform.tfvars -auto-approve
