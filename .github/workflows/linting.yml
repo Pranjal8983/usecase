@@ -1,0 +1,17 @@
+name: Lint
+on: 
+ workflow_dispatch:
+
+jobs:
+ linting:
+  name: Linting
+  runs-on: ubuntu-latest
+  steps:
+  - uses: actions/checkout@v2
+
+  - name: Install npm packages
+    run: npm install --force
+
+  - name: Code linting
+    run: npm run lint
+    
