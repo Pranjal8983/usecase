@@ -81,6 +81,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+
 
       # - name: Setup Terraform
       #   uses: hashicorp/setup-terraform@v3
