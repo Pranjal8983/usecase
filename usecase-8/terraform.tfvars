@@ -1,10 +1,10 @@
-ecr_repo_name
-alb_sg_name
-sg_name
-vpc_cidr
-vpc_name
-public_subnets
-private_subnets
-azs
-cluster_name
-execution_role_arn
+ecr_repo_name = 
+alb_sg_name = 
+sg_name = 
+vpc_cidr = 
+vpc_name = 
+public_subnets = 
+private_subnets = 
+azs = 
+cluster_name = 
+execution_role_arn = 
