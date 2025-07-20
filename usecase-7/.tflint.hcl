@@ -1,5 +1,5 @@
 plugin "aws" {
-  enabled = true
+  enabled = false
   version = "0.29.0" # compitable update version
   source  = "github.com/terraform-linters/tflint-ruleset-aws"
   region  = "us-east-1"
