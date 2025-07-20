@@ -73,6 +73,11 @@ jobs:
       #   continue-on-error: true
   tflint:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: usecase-7
+        
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
