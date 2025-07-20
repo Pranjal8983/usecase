@@ -71,6 +71,27 @@ jobs:
       # - name: Run TFLint
       #   run: tflint -f compact
       #   continue-on-error: true
+  tflint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # - name: Setup Terraform
+      #   uses: hashicorp/setup-terraform@v3
+      #   with:
+      #     terraform_version: 1.x.x # Match your Terraform version
+
+      - name: Install TFLint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+          sudo mv tflint /usr/local/bin/
+
+      - name: TFLint Init
+        run: tflint --init
+
+      - name: Run TFLint
+        run: tflint --recursive
 
       - name: Setup Python for Checkov
         uses: actions/setup-python@v5.6.0
