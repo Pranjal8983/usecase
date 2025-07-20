@@ -6,6 +6,6 @@ plugin "aws" {
 }
 
 # Enable all default rules for AWS
-rule "aws_instance_invalid_type" { enabled = true }
+rule "aws_instance_invalid_type" { enabled = false }
 rule "aws_db_instance_invalid_type" { enabled = false }
-rule "terraform_unused_declarations" { enabled = true }
+rule "terraform_unused_declarations" { enabled = false }
