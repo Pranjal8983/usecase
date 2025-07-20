@@ -99,7 +99,7 @@ jobs:
           chmod +x terraform-docs
           sudo mv terraform-docs /usr/local/bin/
 
-      - name: Generate Terraform Docs and Commit
+      - name: Generate Terraform Docs
         run: |
           git config --local user.email ${{ secrets.EMAIL }}
           git config --local user.name ${{ secrets.USER_NAME }}
