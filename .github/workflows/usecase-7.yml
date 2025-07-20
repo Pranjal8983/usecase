@@ -28,7 +28,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: .
+        working-directory: usecase-7
 
   # terraform_validate:
   #   runs-on: ubuntu-latest
