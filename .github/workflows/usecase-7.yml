@@ -41,10 +41,6 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           role-to-assume: ${{ secrets.OIDC_ROLE }}
 
-      - name: Pull terraform.tfvars from S3
-        run: |
-          aws s3 cp s3://terraform-usecases-batch6/env/usecase-7/terraform.tfvars .
-
       - name: Install OPA
         run: |
           wget https://github.com/open-policy-agent/conftest/releases/download/v0.45.0/conftest_0.45.0_Linux_x86_64.tar.gz
