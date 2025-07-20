@@ -16,7 +16,7 @@ resource "aws_ecs_task_definition" "ecs" {
   container_definitions = jsonencode([
     {
       name      = each.key
-      image     = each.value.image
+      image     = "${each.value.image}:latest"
       portMappings = [
         {
           containerPort = each.value.container_port
@@ -34,7 +34,7 @@ resource "aws_ecs_service" "ecs" {
   name            = each.key
 cluster = aws_ecs_cluster.ecs.id
   task_definition = aws_ecs_task_definition.ecs[each.key].arn
-  desired_count   = 1
+  desired_count   = 0
   launch_type     = "FARGATE"
  
   network_configuration {
