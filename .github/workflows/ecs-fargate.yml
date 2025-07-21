@@ -1,4 +1,4 @@
-name: ECS Fargate
+name: ECS Fargate docs test
 
 on:
   workflow_dispatch:
