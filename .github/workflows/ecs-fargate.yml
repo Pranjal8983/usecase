@@ -75,7 +75,7 @@ jobs:
           # terraform plan -var-file=terraform.tfvars
           # terraform apply -var-file=terraform.tfvars -auto-approve
 
-  reusable-docs-wf:
+  terraform-docs-reusable:
     runs-on: ubuntu-latest
 
     steps:
