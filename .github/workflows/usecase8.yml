@@ -75,7 +75,7 @@ jobs:
 
       - name: Run implement terraform
         run: |
-          terraform init -reconfigure
+          #terraform init -reconfigure
           # terraform test
           # terraform fmt -recursive
           # terraform validate
