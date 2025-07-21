@@ -1,4 +1,4 @@
-name: usecase-7 CICD
+name: usecase-7 CICD API Lambda
 
 on:
   push:
@@ -246,5 +246,5 @@ jobs:
           terraform validate
           terraform plan -var-file=terraform.tfvars
           #terraform apply -var-file=terraform.tfvars -auto-approve
-          terraform destroy -var-file=terraform.tfvars -auto-approve
+          #terraform destroy -var-file=terraform.tfvars -auto-approve
           
