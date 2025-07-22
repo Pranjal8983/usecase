@@ -2,6 +2,18 @@ name: ECS Fargate docs test
 
 on:
   workflow_dispatch:
+  # push:
+  #   paths:
+  #     - 'usecase-7/**'
+  #     - '.github/workflows/usecase-7.yml'
+  #   branches: main
+
+# on:
+#   pull_request:
+#     paths:
+#       - 'usecase-8/**'
+#       - '.github/workflows/usecase-8.yml'
+#     types: [opened, synchronize]
 
 permissions:
   id-token: write
@@ -72,7 +84,7 @@ jobs:
 
 
 
-         - name: Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
@@ -198,16 +210,16 @@ jobs:
           terraform plan -var-file=terraform.tfvars
           # terraform apply -var-file=terraform.tfvars -auto-approve
 
-  terraform-docs-reusable:
-    runs-on: ubuntu-latest
+  # terraform-docs-reusable:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Install Terraform Docs
-        uses: terraform-docs/gh-actions@v1.4.1
-        with:
-          working-dir: usecase-8
-          output-file: README.md
-          output-method: inject
-          git-push: "true"
+  #     - name: Install Terraform Docs
+  #       uses: terraform-docs/gh-actions@v1.4.1
+  #       with:
+  #         working-dir: usecase-8
+  #         output-file: README.md
+  #         output-method: inject
+  #         git-push: "true"
