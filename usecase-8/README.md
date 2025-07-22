@@ -1,4 +1,3 @@
-<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 No requirements.
@@ -39,4 +38,3 @@ No resources.
 ## Outputs
 
 No outputs.
-<!-- END_TF_DOCS -->
