@@ -96,111 +96,111 @@ jobs:
           chmod +x terraform-docs
           sudo mv terraform-docs /usr/local/bin/
 
-      - name: Generate Terraform Docs and Commit
-        run: |
-          git config --local user.email ${{ secrets.EMAIL }}
-          git config --local user.name ${{ secrets.USER_NAME }}
-          terraform-docs markdown table . > README.md.new
-          mv README.md.new README.md
+      # - name: Generate Terraform Docs and Commit
+      #   run: |
+      #     git config --local user.email ${{ secrets.EMAIL }}
+      #     git config --local user.name ${{ secrets.USER_NAME }}
+      #     terraform-docs markdown table . > README.md.new
+      #     mv README.md.new README.md
 
-          if [ -f README.md ]; then
-            git add README.md
-            if git commit -m "docs: Update README.md"; then
-              git push
-              echo "Successfully committed and pushed README.md changes."
-            else
-              echo "No README.md changes to commit."
-            fi
-          else
-            echo "README.md was not generated."
-          fi
+      #     if [ -f README.md ]; then
+      #       git add README.md
+      #       if git commit -m "docs: Update README.md"; then
+      #         git push
+      #         echo "Successfully committed and pushed README.md changes."
+      #       else
+      #         echo "No README.md changes to commit."
+      #       fi
+      #     else
+      #       echo "README.md was not generated."
+      #     fi
 
-      - name: Update Pull Request
-        uses: actions/github-script@v7
-        if: github.event_name == 'pull_request'
-        env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-        with:
-          github-token: ${{ secrets.GIT_TOKEN }}
-          script: |
-            const output = `#### Terraform Format and Style \`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization \`${{ steps.init.outcome }}\`
-            #### Terraform Validation \`${{ steps.validate.outcome }}\`
-            #### Terraform Plan \`${{ steps.plan.outcome }}\`
+      # - name: Update Pull Request
+      #   uses: actions/github-script@v7
+      #   if: github.event_name == 'pull_request'
+      #   env:
+      #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      #   with:
+      #     github-token: ${{ secrets.GIT_TOKEN }}
+      #     script: |
+      #       const output = `#### Terraform Format and Style \`${{ steps.fmt.outcome }}\`
+      #       #### Terraform Initialization \`${{ steps.init.outcome }}\`
+      #       #### Terraform Validation \`${{ steps.validate.outcome }}\`
+      #       #### Terraform Plan \`${{ steps.plan.outcome }}\`
 
-            <details><summary>Show Plan</summary>
+      #       <details><summary>Show Plan</summary>
 
-            \`\`\`\n
-            ${process.env.PLAN}
-            \`\`\`
+      #       \`\`\`\n
+      #       ${process.env.PLAN}
+      #       \`\`\`
 
-            </details>
+      #       </details>
 
-            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+      #       *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
+      #       github.rest.issues.createComment({
+      #         issue_number: context.issue.number,
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         body: output
+      #       })
       
-      - name: Read README.md content
-        id: readme_content # Assign an ID to reference this step's outputs
-        run: |
-          # Use 'cat' to read the file and store it in an environment variable, then echo it to GITHUB_OUTPUT
-          # We're careful here to handle multiline content by escaping newlines
-          # and using a delimiter for the output variable.
-          README=$(cat README.md)
-          echo "readme<<EOF" >> $GITHUB_OUTPUT
-          echo "$README" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+      # - name: Read README.md content
+      #   id: readme_content # Assign an ID to reference this step's outputs
+      #   run: |
+      #     # Use 'cat' to read the file and store it in an environment variable, then echo it to GITHUB_OUTPUT
+      #     # We're careful here to handle multiline content by escaping newlines
+      #     # and using a delimiter for the output variable.
+      #     README=$(cat README.md)
+      #     echo "readme<<EOF" >> $GITHUB_OUTPUT
+      #     echo "$README" >> $GITHUB_OUTPUT
+      #     echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Post README.md content to Pull Request
-        uses: actions/github-script@v7 # Action to run JavaScript in your workflow
-        if: github.event_name == 'pull_request' # Ensure this only runs for PR events
-        env:
-          # Get the README content from the output of the previous step
-          README_BODY: "${{ steps.readme_content.outputs.readme }}"
-        with:
-          github-token: ${{ secrets.GIT_TOKEN }} # GitHub token for authentication
-          script: |
-            const output = `#### Current README.md Content
+      # - name: Post README.md content to Pull Request
+      #   uses: actions/github-script@v7 # Action to run JavaScript in your workflow
+      #   if: github.event_name == 'pull_request' # Ensure this only runs for PR events
+      #   env:
+      #     # Get the README content from the output of the previous step
+      #     README_BODY: "${{ steps.readme_content.outputs.readme }}"
+      #   with:
+      #     github-token: ${{ secrets.GIT_TOKEN }} # GitHub token for authentication
+      #     script: |
+      #       const output = `#### Current README.md Content
             
-            <details><summary>Show README.md</summary>
+      #       <details><summary>Show README.md</summary>
             
-            \`\`\`markdown
-            ${process.env.README_BODY}
-            \`\`\`
+      #       \`\`\`markdown
+      #       ${process.env.README_BODY}
+      #       \`\`\`
             
-            </details>
+      #       </details>
             
-            *Posted by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+      #       *Posted by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
+      #       github.rest.issues.createComment({
+      #         issue_number: context.issue.number,
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         body: output
+      #       })
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: terraform-docs
-          path: usecase-7/README.md
+      # - name: Upload Artifacts
+      #   uses: actions/upload-artifact@v4.6.2
+      #   with:
+      #     name: terraform-docs
+      #     path: usecase-7/README.md
           
-      - name: Add README.md
-        uses: peter-evans/create-pull-request@v7.0.8
-        with:
-          token: ${{ secrets.GIT_TOKEN }}
-          body: |
-            ## Terraform Docs ##
-            ```
-            ${{ steps.readme.outputs.content }}
+      # - name: Add README.md
+      #   uses: peter-evans/create-pull-request@v7.0.8
+      #   with:
+      #     token: ${{ secrets.GIT_TOKEN }}
+      #     body: |
+      #       ## Terraform Docs ##
+      #       ```
+      #       ${{ steps.readme.outputs.content }}
 
-      - name: Terraform test
-        run: terraform test
+      # - name: Terraform test
+      #   run: terraform test
 
         
       - name: Run Terraform Implementation
