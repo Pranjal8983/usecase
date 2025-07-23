@@ -1,4 +1,5 @@
 resource "aws_eks_node_group" "this" {
+  depends_on = [aws_eks_cluster.my_eks_cluster]
   cluster_name    = var.cluster_name
   node_group_name = var.node_group_name
   node_role_arn   = var.node_role_arn
