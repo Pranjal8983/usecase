@@ -1,62 +1,50 @@
-#Vpc
-module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
+module "iam" {
+  source = "./modules/iam"
 
-  name = "eks_cluster_vpc"
-  cidr = var.vpc_cidr
+  cluster_role_name         = "devops-eks-iam-role"
+  cluster_assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = { Service = "eks.amazonaws.com" }
+      Action = "sts:AssumeRole"
+    }]
+  })
 
-  azs             = data.aws_availability_zones.azs.names
-  public_subnets  = var.public_subnets
-  private_subnets = var.private_subnets
+  node_role_name = "eks-node-group-example"
+  node_assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+      Action = "sts:AssumeRole"
+    }]
+  })
 
-
-  enable_dns_hostnames = true
-  enable_nat_gateway   = true
-  single_nat_gateway   = true
-
-  tags = {
-    "kubernetes.io/cluster/my-eks-cluster" = "shared"
-  }
-  public_subnet_tags = {
-    "kubernetes.io/cluster/my-eks-cluster" = "shared"
-    "kubernetes.io/role/elb"               = 1
-
-  }
-  private_subnet_tags = {
-    "kubernetes.io/cluster/my-eks-cluster" = "shared"
-    "kubernetes.io/role/private_elb"       = 1
-
-  }
+  node_group_policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
+    "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
+    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  ]
 }
 
-#EKS
+module "eks_cluster" {
+  source = "./modules/eks-cluster"
 
-module "eks" {
-  source                         = "terraform-aws-modules/eks/aws"
-  cluster_name                   = "my-eks-cluster"
-  cluster_version                = "1.29"
-  cluster_endpoint_public_access = true
-  vpc_id                         = module.vpc.vpc_id
-  subnet_ids                     = module.vpc.private_subnets
-
-  eks_managed_node_groups = {
-    nodes = {
-      min_size       = 1
-      max_size       = 3
-      desired_size   = 2
-      instance_types = var.instance_types
-    }
-  }
-  tags = {
-    Environment = "dev"
-    Terraform   = "true"
-  }
+  cluster_name     = var.cluster_name
+  cluster_role_arn = module.iam.eks_cluster_role_arn
+  subnet_ids       = [var.subnet_id_1, var.subnet_id_2]
 }
 
-data "aws_eks_cluster" "cluster" {
-  name = module.eks.cluster_id
-}
+module "eks_node_group" {
+  source = "./modules/eks-node-group"
 
-data "aws_eks_cluster_auth" "cluster" {
-  name = module.eks.cluster_id
+  cluster_name    = var.cluster_name
+  node_group_name = "my-workernodes"
+  node_role_arn   = module.iam.node_group_role_arn
+  subnet_ids      = [var.subnet_id_1, var.subnet_id_2]
+  instance_types  = ["t2.medium"]
+  desired_size    = 2
+  max_size        = 2
+  min_size        = 1
 }
