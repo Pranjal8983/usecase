@@ -4,7 +4,7 @@ on:
  workflow_dispatch:
   #push:
     # paths:
-    #   - 'usecase-5/**'
+    #   - 'usecase-9/**'
     #   - '.github/workflows/deploy_uc5.yml'
     # branches: main
   
@@ -34,18 +34,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # - name: Create terraform.tfvars
-      #   run: |
-      #     cat <<EOF > terraform.tfvars
-      #     sns_topic_name = "s3-sns-topic"
-      #     bucket_input_name = "non-resized-image-pranjal-72312"
-      #     bucket_output_name = "resized-image-pranjal-72312"
-      #     lambda_s3_bucket = "pranjal71025"
-      #     lambda_s3_key = "lambda.zip"
-      #     lambda_name = "image-resize-lambda-function"
-      #     email = "pranjal.deka@hcltech.com"
-      #     lambda_role = "arn:aws:iam::836837432401:role/service-role/image-resize-lambda-function-role-68p530eb"
-      #     EOF
+      - name: Create terraform.tfvars
+        run: |
+          cat <<EOF > terraform.tfvars
+           region = "us-east-1"
+          EOF
 
     
       - name: Run implement terraform
