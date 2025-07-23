@@ -38,6 +38,10 @@ jobs:
         run: |
           cat <<EOF > terraform.tfvars
            region = "us-east-1"
+           cluster_name = "my-eks-cluster"
+           subnet_id_1  = "subnet-0123456789abcdef0"
+           subnet_id_2  = "subnet-0fedcba9876543210"
+
           EOF
 
     
