@@ -4,6 +4,9 @@ on:
   # push:
     # branches: [main]
   workflow_dispatch:
+env:
+  AWS_REGION: us-east-1
+  EKS_REPO: 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app
 
 permissions:
   id-token: write
