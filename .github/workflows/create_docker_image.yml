@@ -49,6 +49,8 @@ jobs:
            #docker build -t $IMAGE_URI /home/runner/work/usecase/usecase/usecase-9/Api-Flask
            #docker push $IMAGE_URI
            docker images
+           docker tag flask-app:cicd 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app:cicd
+           docker push 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app:cicd
 
   
           
