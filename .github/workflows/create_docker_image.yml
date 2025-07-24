@@ -37,16 +37,20 @@ jobs:
 
       - name: Build Docker image
         run: |
-          pwd
-          docker build -t flask-app:cicd /home/runner/work/usecase/usecase/usecase-9/Api-Flask
-          docker tag flask-app:cicd 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app
+          # pwd
+          # docker build -t flask-app:cicd /home/runner/work/usecase/usecase/usecase-9/Api-Flask
+          # docker tag flask-app:cicd 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app
+          IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
+           pwd
+           docker build -t $IMAGE_URI /home/runner/work/usecase/usecase/usecase-9/Api-Flask
+           docker push $IMAGE_URI
 
   
           
 
-      - name: Push Docker image to ECR
-        run: |
-          docker push 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app:cicd
-          #${{ steps.login-ecr.outputs.registry }}/flask-app:cicd
+      # - name: Push Docker image to ECR
+      #   run: |
+      #     docker push 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app:cicd
+      #     #${{ steps.login-ecr.outputs.registry }}/flask-app:cicd
 
  
