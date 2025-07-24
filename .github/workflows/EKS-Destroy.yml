@@ -1,4 +1,4 @@
-name: EKS deployment python app
+name: EKS-Destroy
 
 on:
  workflow_dispatch:
