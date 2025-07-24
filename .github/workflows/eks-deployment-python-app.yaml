@@ -1,0 +1,70 @@
+name: Create EKS using terraform
+
+on:
+ workflow_dispatch:
+  #push:
+    # paths:
+    #   - 'usecase-9/**'
+    #   - '.github/workflows/deploy_uc5.yml'
+    # branches: main
+env:
+  AWS_REGION: us-east-1
+  EKS_REPO: 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app
+
+  
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  terraform-usecase-9:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: usecase-9
+
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2.0.3
+      
+      - name: SetUp AWS
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Create terraform.tfvars
+        run: |
+          cat <<EOF > terraform.tfvars
+           region = "us-east-1"
+           cluster_name = "my-eks-cluster"
+           subnet_id_1  = "subnet-036ed780e3b962aa6"
+           subnet_id_2  = "subnet-031ba2cbd22b52e60"
+
+          EOF
+
+    
+      - name: Run implement terraform
+        run: |
+          terraform init
+          terraform fmt -recursive
+          terraform validate
+          #terraform plan -var-file=terraform.tfvars
+          #terraform apply -var-file=terraform.tfvars -auto-approve
+          terraform destroy -var-file=terraform.tfvars -auto-approve
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build Docker image
+        run: |
+           pwd
+           docker build -t flask-app:cicd /home/runner/work/usecase/usecase/usecase-9/Api-Flask
+           docker images
+           docker tag flask-app:cicd 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app:cicd
+           docker push 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app:cicd
+
