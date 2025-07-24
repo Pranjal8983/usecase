@@ -9,4 +9,4 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 5000
-  type: ClusterIP  # Use LoadBalancer if you want direct external access
+  type: LoadBalancer  # Use LoadBalancer if you want direct external access
