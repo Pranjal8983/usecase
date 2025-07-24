@@ -37,13 +37,13 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t flask-app:latest .
-          docker tag flask-app:latest ${{ steps.login-ecr.outputs.registry }}/flask-app:cicd
+          docker build -t flask-app:cicd usecase/usecase-9/Api-Flask/
+          docker tag flask-app:cicd ${{ steps.login-ecr.outputs.registry }}/flask-app:cicd
 
           
 
       - name: Push Docker image to ECR
         run: |
-          docker push ${{ steps.login-ecr.outputs.registry }}/flask-app:latest
+          docker push ${{ steps.login-ecr.outputs.registry }}/flask-app:cicd
 
  
