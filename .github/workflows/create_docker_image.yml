@@ -37,7 +37,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          cd usecase-9/Api-Flask
+          cd ~/Api-Flask
           docker build -t flask-app:cicd .
           docker tag flask-app:cicd ${{ steps.login-ecr.outputs.registry }}/flask-app:cicd
 
