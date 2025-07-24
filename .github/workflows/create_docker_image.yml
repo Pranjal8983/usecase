@@ -45,8 +45,10 @@ jobs:
           # docker tag flask-app:cicd 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app
           #IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
            pwd
-           docker build -t $IMAGE_URI /home/runner/work/usecase/usecase/usecase-9/Api-Flask
-           docker push $IMAGE_URI
+           docker build -t flask-app:cicd /home/runner/work/usecase/usecase/usecase-9/Api-Flask
+           #docker build -t $IMAGE_URI /home/runner/work/usecase/usecase/usecase-9/Api-Flask
+           #docker push $IMAGE_URI
+           docker images
 
   
           
