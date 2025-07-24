@@ -64,10 +64,10 @@ jobs:
       #    aws eks update-kubeconfig --region us-east-1 --name my-eks-cluster
 
 
-      - name: Deploy to EKS Cluster
-        run: |
-           kubectl apply -f /home/runner/work/usecase/usecase/usecase-9/Api-Flask/deployment.yaml
-           kubectl apply -f /home/runner/work/usecase/usecase/usecase-9/Api-Flask/service.yaml
-           kubectl get deployment
-           kubectl get pods
-           kubectl get svc -o wide
+      # - name: Deploy to EKS Cluster
+      #   run: |
+      #      kubectl apply -f /home/runner/work/usecase/usecase/usecase-9/Api-Flask/deployment.yaml
+      #      kubectl apply -f /home/runner/work/usecase/usecase/usecase-9/Api-Flask/service.yaml
+      #      kubectl get deployment
+      #      kubectl get pods
+      #      kubectl get svc -o wide
