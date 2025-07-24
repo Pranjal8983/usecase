@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app
+  labels:
+    app: flask-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: flask-app
+  template:
+    metadata:
+      labels:
+        app: flask-app
+    spec:
+      containers:
+      - name: flask-app
+        image: 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest  # Replace with your ECR image URI
+        ports:
+        - containerPort: 5000
+        envFrom:
+        - secretRef:
+            name: flask-app-env  # Optional: if using Kubernetes secrets
