@@ -68,3 +68,14 @@ jobs:
            docker tag flask-app:cicd 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app:cicd
            docker push 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app:cicd
 
+
+      - name: Configure kubeconfig
+        run: |
+         aws eks update-kubeconfig --region us-east-1 --name my-eks-cluster
+
+
+      - name: Deploy to EKS Cluster
+        run: |
+           kubectl apply -f /home/runner/work/usecase/usecase/usecase-9/Api-Flask/deployment.yaml
+           kubectl apply -f /home/runner/work/usecase/usecase/usecase-9/Api-Flask/service.yaml
+
