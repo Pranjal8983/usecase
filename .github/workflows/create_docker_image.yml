@@ -39,8 +39,8 @@ jobs:
         run: |
           pwd
           docker build -t flask-app:cicd /home/runner/work/usecase/usecase/usecase-9/Api-Flask
-          docker tag flask-app:cicd ${{ steps.login-ecr.outputs.registry }}/flask-app:cicd
-
+          docker tag flask-app:cicd ${{ steps.login-ecr.outputs.registry }}/flask-app
+  
           
 
       - name: Push Docker image to ECR
