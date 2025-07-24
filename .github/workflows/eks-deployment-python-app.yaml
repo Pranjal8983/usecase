@@ -78,4 +78,6 @@ jobs:
         run: |
            kubectl apply -f /home/runner/work/usecase/usecase/usecase-9/Api-Flask/deployment.yaml
            kubectl apply -f /home/runner/work/usecase/usecase/usecase-9/Api-Flask/service.yaml
+           kubectl get deployment
+           kubectl get svc -o wide
 
