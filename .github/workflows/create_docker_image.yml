@@ -20,21 +20,27 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        
 
-      # OIDC AWS creds
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: SetUp AWS
+        uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
-          role-to-assume: arn:aws:iam::012889719104:role/oidc_role
-          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
+          
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
+
+        
 
       - name: Build Docker image
         run: |
           docker build -t flask-app:latest .
           docker tag flask-app:latest ${{ steps.login-ecr.outputs.registry }}/flask-app:cicd
+
+          
 
       - name: Push Docker image to ECR
         run: |
