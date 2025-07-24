@@ -1,4 +1,4 @@
-name: Create EKS using terraform
+name: EKS deployment python app
 
 on:
  workflow_dispatch:
