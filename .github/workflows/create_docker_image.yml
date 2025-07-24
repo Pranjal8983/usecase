@@ -46,6 +46,7 @@ jobs:
 
       - name: Push Docker image to ECR
         run: |
-          docker push ${{ steps.login-ecr.outputs.registry }}/flask-app:cicd
+          docker push 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app:cicd
+          #${{ steps.login-ecr.outputs.registry }}/flask-app:cicd
 
  
