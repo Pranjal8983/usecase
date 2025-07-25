@@ -46,30 +46,30 @@ jobs:
           terraform fmt -recursive
           terraform validate
           terraform plan -var-file=terraform.tfvars
-          terraform apply -var-file=terraform.tfvars -auto-approve
-          #terraform destroy -var-file=terraform.tfvars -auto-approve
+          #terraform apply -var-file=terraform.tfvars -auto-approve
+          terraform destroy -var-file=terraform.tfvars -auto-approve
 
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v2
-      - name: Build Docker image
-        run: |
-           pwd
-           docker build -t flask-app:cicd /home/runner/work/usecase/usecase/usecase-9/Api-Flask
-           docker images
-           docker tag flask-app:cicd 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app:cicd
-           docker push 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app:cicd
-
-
-      - name: Configure kubeconfig
-        run: |
-         aws eks update-kubeconfig --region us-east-1 --name my-eks-cluster
+      # - name: Login to Amazon ECR
+      #   uses: aws-actions/amazon-ecr-login@v2
+      # - name: Build Docker image
+      #   run: |
+      #      pwd
+      #      docker build -t flask-app:cicd /home/runner/work/usecase/usecase/usecase-9/Api-Flask
+      #      docker images
+      #      docker tag flask-app:cicd 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app:cicd
+      #      docker push 836837432401.dkr.ecr.us-east-1.amazonaws.com/flask-app:cicd
 
 
-      - name: Deploy to EKS Cluster
-        run: |
-           kubectl apply -f /home/runner/work/usecase/usecase/usecase-9/Api-Flask/deployment.yaml
-           kubectl apply -f /home/runner/work/usecase/usecase/usecase-9/Api-Flask/service.yaml
-           kubectl get deployment
-           kubectl get pods
-           kubectl get svc -o wide
+      # - name: Configure kubeconfig
+      #   run: |
+      #    aws eks update-kubeconfig --region us-east-1 --name my-eks-cluster
+
+
+      # - name: Deploy to EKS Cluster
+      #   run: |
+      #      kubectl apply -f /home/runner/work/usecase/usecase/usecase-9/Api-Flask/deployment.yaml
+      #      kubectl apply -f /home/runner/work/usecase/usecase/usecase-9/Api-Flask/service.yaml
+      #      kubectl get deployment
+      #      kubectl get pods
+      #      kubectl get svc -o wide
 
