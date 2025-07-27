@@ -659,12 +659,12 @@ resource "aws_api_gateway_deployment" "main" {
   stage_name  = "prod"
 }
 #==============API Gateway Deployment
-resource "aws_api_gateway_deployment" "main" {
-  depends_on = [
-    aws_api_gateway_integration.appointments,
-    aws_api_gateway_integration.patients,
-  ]
-  rest_api_id = aws_api_gateway_rest_api.main.id
+#resource "aws_api_gateway_deployment" "main" {
+ # depends_on = [
+  #  aws_api_gateway_integration.appointments,
+   # aws_api_gateway_integration.patients,
+  #]
+  #rest_api_id = aws_api_gateway_rest_api.main.id
 
   triggers = {
     redeployment = sha1(jsonencode([
