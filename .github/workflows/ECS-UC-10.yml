@@ -38,13 +38,13 @@ jobs:
       # Patient Service build & push
       - name: Build patient-service Docker image
         run: |
-          docker build -t $PATIENT_REPO:latest ./ECS/application/patient-service
+          docker build -t $PATIENT_REPO:latest /home/runner/work/usecase/usecase/ECS/application/patient-service
           docker push $PATIENT_REPO:latest
 
       # Appointment Service build & push
       - name: Build appointment-service Docker image
         run: |
-          docker build -t $APPOINTMENT_REPO:latest ./ECS/application/appointment-service
+          docker build -t $APPOINTMENT_REPO:latest ./home/runner/work/usecase/usecase/ECS/application/appointment-service
           docker push $APPOINTMENT_REPO:latest
 
       # Terraform deploy
