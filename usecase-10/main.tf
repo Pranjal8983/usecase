@@ -176,37 +176,58 @@ resource "aws_security_group" "alb" {
 }
 
 #======================ECS Security Group
+#resource "aws_security_group" "ecs" {
+ # name_prefix = "${var.project_name}-ecs-"
+  #vpc_id      = aws_vpc.main.id
+
+  #ingress {
+   # description     = "Appointment Service"
+    #from_port       = var.appointment_port
+    #to_port         = var.appointment_port
+    #protocol        = "tcp"
+    #security_groups = [aws_security_group.alb.id]
+  #}
+
+  #ingress {
+   # description     = "Patient Service"
+    #from_port       = var.patient_port
+    #to_port         = var.patient_port
+    #protocol        = "tcp"
+    #security_groups = [aws_security_group.alb.id]
+  #}
+
+  #egress {
+   #_port     = 0
+    #protocol    = "-1"
+    #cidr_blocks = ["0.0.0.0/0"]
+  #}
+
+  #tags = {
+   # Name        = "${var.project_name}-ecs-sg"
+    #Environment = var.environment
+  #}
+#}
+#========repalced
 resource "aws_security_group" "ecs" {
-  name_prefix = "${var.project_name}-ecs-"
+  name        = "ecs-sg"
+  description = "Security group for ECS tasks"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description     = "Appointment Service"
-    from_port       = var.appointment_port
-    to_port         = var.appointment_port
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-  }
-
-  ingress {
-    description     = "Patient Service"
-    from_port       = var.patient_port
-    to_port         = var.patient_port
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-  }
-
-  egress {
-   _port     = 0
-    protocol    = "-1"
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name        = "${var.project_name}-ecs-sg"
-    Environment = var.environment
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
 
 #==================================ECR Repositories====Appointment Service
 resource "aws_ecr_repository" "appointment" {
@@ -650,13 +671,13 @@ resource "aws_api_gateway_integration" "patients" {
 }
 
 #==================Deployment
-resource "aws_api_gateway_deployment" "main" {
-  depends_on = [
-    aws_api_gateway_integration.appointments,
-    aws_api_gateway_integration.patients
-  ]
-  rest_api_id = aws_api_gateway_rest_api.main.id
-  stage_name  = "prod"
+#resource "aws_api_gateway_deployment" "main" {
+ # depends_on = [
+  #  aws_api_gateway_integration.appointments,
+   # aws_api_gateway_integration.patients
+  #]
+  #rest_api_id = aws_api_gateway_rest_api.main.id
+  #stage_name  = "prod"
 #}
 #==============API Gateway Deployment
 #resource "aws_api_gateway_deployment" "main" {
@@ -665,6 +686,16 @@ resource "aws_api_gateway_deployment" "main" {
    # aws_api_gateway_integration.patients,
   #]
   #rest_api_id = aws_api_gateway_rest_api.main.id
+
+resource "aws_api_gateway_deployment" "main" {
+  rest_api_id = aws_api_gateway_rest_api.main.id
+}
+
+resource "aws_api_gateway_stage" "main" {
+  deployment_id = aws_api_gateway_deployment.main.id
+  rest_api_id   = aws_api_gateway_rest_api.main.id
+  stage_name    = var.api_stage_name
+}
 
   triggers = {
     redeployment = sha1(jsonencode([
