@@ -18,20 +18,19 @@ jobs:
   build-push-deploy:
     runs-on: ubuntu-latest
 
-    # defaults:
-    #   run:
-    #     working-directory: usecase8
+    defaults:
+      run:
+        working-directory: ECS
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # OIDC AWS creds
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: SetUp AWS OIDC
+        uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
-          role-to-assume: arn:aws:iam::012889719104:role/oidc_role
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.OIDC_ROLE }}
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
@@ -39,13 +38,13 @@ jobs:
       # Patient Service build & push
       - name: Build patient-service Docker image
         run: |
-          docker build -t $PATIENT_REPO:latest ./application/patient-service
+          docker build -t $PATIENT_REPO:latest ./ECS/application/patient-service
           docker push $PATIENT_REPO:latest
 
       # Appointment Service build & push
       - name: Build appointment-service Docker image
         run: |
-          docker build -t $APPOINTMENT_REPO:latest ./application/appointment-service
+          docker build -t $APPOINTMENT_REPO:latest ./ECS/application/appointment-service
           docker push $APPOINTMENT_REPO:latest
 
       # Terraform deploy
