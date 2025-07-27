@@ -265,4 +265,287 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-#====================
+#====================CloudWatch Log Groups
+
+resource "aws_cloudwatch_log_group" "appointment" {
+  name              = "/ecs/${var.project_name}-appointment"
+  retention_in_days = 30
+  tags = {
+    Environment = var.environment
+  }
+}
+
+resource "aws_cloudwatch_log_group" "patient" {
+  name              = "/ecs/${var.project_name}-patient"
+  retention_in_days = 30
+  tags = {
+    Environment = var.environment
+  }
+}
+
+#================ECS Task Definition: Appointment Service
+resource "aws_ecs_task_definition" "appointment" {
+  family                   = "${var.project_name}-appointment-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = var.task_cpu
+  memory                   = var.task_memory
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+
+  container_definitions = jsonencode([
+    {
+      name  = "appointment-container"
+      image = "${aws_ecr_repository.appointment.repository_url}:${var.image_tag}"
+      portMappings = [
+        {
+          containerPort = var.appointment_port
+          hostPort      = var.appointment_port
+          protocol      = "tcp"
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.appointment.name
+          awslogs-region        = var.aws_region
+          awslogs-stream-prefix = "ecs"
+        }
+      }
+      environment = [
+        {
+          name  = "PORT"
+          value = tostring(var.appointment_port)
+        },
+        {
+          name  = "NODE_ENV"
+          value = var.environment
+        }
+      ]
+      healthCheck = {
+        command  = ["CMD-SHELL", "curl -f  || exit 1"]
+        interval = 30
+        timeout  = 5
+        retries  = 3
+      }
+    }
+  ])
+
+  tags = {
+    Environment = var.environment
+  }
+}
+#===============================ECS Task Definition: Patient Service
+resource "aws_ecs_task_definition" "patient" {
+  family                   = "${var.project_name}-patient-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = var.task_cpu
+  memory                   = var.task_memory
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+
+  container_definitions = jsonencode([
+    {
+      name  = "patient-container"
+      image = "${aws_ecr_repository.patient.repository_url}:${var.image_tag}"
+      portMappings = [
+        {
+          containerPort = var.patient_port
+          hostPort      = var.patient_port
+          protocol      = "tcp"
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.patient.name
+          awslogs-region        = var.aws_region
+          awslogs-stream-prefix = "ecs"
+        }
+      }
+      environment = [
+        {
+          name  = "PORT"
+          value = tostring(var.patient_port)
+        },
+        {
+          name  = "NODE_ENV"
+          value = var.environment
+        }
+      ]
+      healthCheck = {
+        command  = ["CMD-SHELL", "curl -f  || exit 1"]
+        interval = 30
+        timeout  = 5
+        retries  = 3
+      }
+    }
+  ])
+
+  tags = {
+    Environment = var.environment
+  }
+}
+#===============Application Load Balancer
+resource "aws_lb" "main" {
+  name                   = "${var.project_name}-alb"
+  internal               = false
+  load_balancer_type     = "application"
+  security_groups        = [aws_security_group.alb.id]
+  subnets                = aws_subnet.public[*].id
+  enable_deletion_protection = false
+
+  tags = {
+    Environment = var.environment
+  }
+}
+#======================Appointment Service Target Group
+
+resource "aws_lb_target_group" "appointment" {
+  name        = "${var.project_name}-appointment-tg"
+  port        = var.appointment_port
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.main.id
+  target_type = "ip"
+
+  health_check {
+    enabled             = true
+    healthy_threshold   = 2
+    interval            = 30
+    matcher             = "200"
+    path                = "/health"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    timeout             = 5
+    unhealthy_threshold = 2
+  }
+
+  tags = {
+    Environment = var.environment
+  }
+}
+
+#==================================Patient Service Target Group
+resource "aws_lb_target_group" "patient" {
+  name        = "${var.project_name}-patient-tg"
+  port        = var.patient_port
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.main.id
+  target_type = "ip"
+
+  health_check {
+    enabled             = true
+    healthy_threshold   = 2
+    interval            = 30
+    matcher             = "200"
+    path                = "/health"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    timeout             = 5
+    unhealthy_threshold = 2
+  }
+
+  tags = {
+    Environment = var.environment
+  }
+}
+#========================Load Balancer Listener
+resource "aws_lb_listener" "main" {
+  load_balancer_arn = aws_lb.main.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Not Found"
+      status_code  = "404"
+    }
+  }
+}
+#=======================Appointment Service Rule
+resource "aws_lb_listener_rule" "appointment" {
+  listener_arn = aws_lb_listener.main.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.appointment.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/appointment*"]
+    }
+  }
+}
+#============================Patient Service Rule
+resource "aws_lb_listener_rule" "patient" {
+  listener_arn = aws_lb_listener.main.arn
+  priority     = 200
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.patient.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/patient*"]
+    }
+  }
+}
+#ECS service========Appointment Service===========
+resource "aws_ecs_service" "appointment" {
+  name            = "${var.project_name}-appointment-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.appointment.arn
+  desired_count   = var.desired_count
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    security_groups   = [aws_security_group.ecs.id]
+    subnets           = aws_subnet.private[*].id
+    assign_public_ip  = false
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.appointment.arn
+    container_name   = "appointment-container"
+    container_port   = var.appointment_port
+  }
+
+  depends_on = [aws_lb_listener.main]
+
+  tags = {
+    Environment = var.environment
+  }
+}
+#==========Patient Service
+resource "aws_ecs_service" "patient" {
+  name            = "${var.project_name}-patient-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.patient.arn
+  desired_count   = var.desired_count
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    security_groups   = [aws_security_group.ecs.id]
+    subnets           = aws_subnet.private[*].id
+    assign_public_ip  = false
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.patient.arn
+    container_name   = "patient-container"
+    container_port   = var.patient_port
+  }
+
+  depends_on = [aws_lb_listener.main]
+
+  tags = {
+    Environment = var.environment
+  }
+}
+#===============================
+
