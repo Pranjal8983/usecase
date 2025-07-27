@@ -15,7 +15,7 @@ permissions:
   contents: write
 
 jobs:
-  build-push-deploy:
+  ecs-for-uc-10:
     runs-on: ubuntu-latest
 
     defaults:
