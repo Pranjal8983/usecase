@@ -58,3 +58,43 @@ resource "aws_subnet" "public" {
     Type        = "Public"
   }
 }
+#================Private Subnets
+resource "aws_subnet" "private" {
+  count             = 2
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_subnet_cidrs[count.index]
+  availability_zone = data.aws_availability_zones.available.names[count.index]
+
+  tags = {
+    Name        = "${var.project_name}-private-subnet-${count.index + 1}"
+    Environment = var.environment
+    Type        = "Private"
+  }
+}
+
+#===============Elastic IPs for NAT Gateways================
+resource "aws_eip" "nat" {
+  count      = 2
+  domain     = "vpc"
+  depends_on = [aws_internet_gateway.main]
+
+  tags = {
+    Name        = "${var.project_name}-nat-eip-${count.index + 1}"
+    Environment = var.environment
+  }
+}
+#===================nat gateway==================
+resource "aws_nat_gateway" "main" {
+  count         = 2
+  allocation_id = aws_eip.nat[count.index].id
+  subnet_id     = aws_subnet.public[count.index].id
+
+  tags = {
+    Name        = "${var.project_name}-nat-gateway-${count.index + 1}"
+    Environment = var.environment
+  }
+
+  depends_on = [aws_internet_gateway.main]
+}
+
+#=======================
