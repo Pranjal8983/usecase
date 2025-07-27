@@ -547,5 +547,174 @@ resource "aws_ecs_service" "patient" {
     Environment = var.environment
   }
 }
-#===============================
+#===============================VPC Link for API Gateway
+resource "aws_api_gateway_vpc_link" "main" {
+  name        = "${var.project_name}-vpc-link"
+  description = "VPC link for healthcare API"
+  target_arns = [aws_lb.main.arn]
+
+  tags = {
+    Environment = var.environment
+  }
+}
+
+#============================API Gateway
+resource "aws_api_gateway_rest_api" "main" {
+  name        = "${var.project_name}-api"
+  description = "Healthcare API Gateway"
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+
+  tags = {
+    Environment = var.environment
+  }
+}
+#================================ API Gateway Resources
+resource "aws_api_gateway_resource" "appointments" {
+  rest_api_id = aws_api_gateway_rest_api.main.id
+  parent_id   = aws_api_gateway_rest_api.main.root_resource_id
+  path_part   = "appointments"
+}
+
+resource "aws_api_gateway_resource" "appointments_proxy" {
+  rest_api_id = aws_api_gateway_rest_api.main.id
+  parent_id   = aws_api_gateway_resource.appointments.id
+  path_part   = "{proxy+}"
+}
+#====================Patients===========
+resource "aws_api_gateway_resource" "patients" {
+  rest_api_id = aws_api_gateway_rest_api.main.id
+  parent_id   = aws_api_gateway_rest_api.main.root_resource_id
+  path_part   = "patients"
+}
+
+resource "aws_api_gateway_resource" "patients_proxy" {
+  rest_api_id = aws_api_gateway_rest_api.main.id
+  parent_id   = aws_api_gateway_resource.patients.id
+  path_part   = "{proxy+}"
+}
+
+#===============API Gateway Methods
+resource "aws_api_gateway_method" "appointments_any" {
+  rest_api_id   = aws_api_gateway_rest_api.main.id
+  resource_id   = aws_api_gateway_resource.appointments_proxy.id
+  http_method   = "ANY"
+  authorization = "NONE"
+
+  request_parameters = {
+    "method.request.path.proxy" = true
+  }
+}
+
+resource "aws_api_gateway_method" "patients_any" {
+  rest_api_id   = aws_api_gateway_rest_api.main.id
+  resource_id   = aws_api_gateway_resource.patients_proxy.id
+  http_method   = "ANY"
+  authorization = "NONE"
+
+  request_parameters = {
+    "method.request.path.proxy" = true
+  }
+}
+#=========================API Gateway Integrations
+resource "aws_api_gateway_integration" "appointments" {
+  rest_api_id             = aws_api_gateway_rest_api.main.id
+  resource_id             = aws_api_gateway_resource.appointments_proxy.id
+  http_method             = aws_api_gateway_method.appointments_any.http_method
+  type                    = "HTTP_PROXY"
+  integration_http_method = "ANY"
+  uri                     = "http://${aws_lb.main.dns_name}/appointment/{proxy}"
+  connection_type         = "VPC_LINK"
+  connection_id           = aws_api_gateway_vpc_link.main.id
+
+  request_parameters = {
+    "integration.request.path.proxy" = "method.request.path.proxy"
+  }
+}
+
+resource "aws_api_gateway_integration" "patients" {
+  rest_api_id             = aws_api_gateway_rest_api.main.id
+  resource_id             = aws_api_gateway_resource.patients_proxy.id
+  http_method             = aws_api_gateway_method.patients_any.http_method
+  type                    = "HTTP_PROXY"
+  integration_http_method = "ANY"
+  uri                     = "http://${aws_lb.main.dns_name}/patient/{proxy}"
+  connection_type         = "VPC_LINK"
+  connection_id           = aws_api_gateway_vpc_link.main.id
+
+  request_parameters = {
+    "integration.request.path.proxy" = "method.request.path.proxy"
+  }
+}
+
+#==================Deployment
+resource "aws_api_gateway_deployment" "main" {
+  depends_on = [
+    aws_api_gateway_integration.appointments,
+    aws_api_gateway_integration.patients
+  ]
+  rest_api_id = aws_api_gateway_rest_api.main.id
+  stage_name  = "prod"
+}
+#==============API Gateway Deployment
+resource "aws_api_gateway_deployment" "main" {
+  depends_on = [
+    aws_api_gateway_integration.appointments,
+    aws_api_gateway_integration.patients,
+  ]
+  rest_api_id = aws_api_gateway_rest_api.main.id
+
+  triggers = {
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_resource.appointments.id,
+      aws_api_gateway_resource.patients.id,
+      aws_api_gateway_method.appointments_any.id,
+      aws_api_gateway_method.patients_any.id,
+      aws_api_gateway_integration.appointments.id,
+      aws_api_gateway_integration.patients.id,
+    ]))
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+#==================== API Gateway Stage
+resource "aws_api_gateway_stage" "main" {
+  deployment_id = aws_api_gateway_deployment.main.id
+  rest_api_id   = aws_api_gateway_rest_api.main.id
+  stage_name    = var.api_stage_name
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gateway.arn
+    format = jsonencode({
+      requestId       = "$context.requestId"
+      ip              = "$context.identity.sourceIp"
+      caller          = "$context.identity.caller"
+      user            = "$context.identity.user"
+      requestTime     = "$context.requestTime"
+      httpMethod      = "$context.httpMethod"
+      resourcePath    = "$context.resourcePath"
+      status          = "$context.status"
+      protocol        = "$context.protocol"
+      responseLength  = "$context.responseLength"
+    })
+  }
+
+  tags = {
+    Environment = var.environment
+  }
+}
+#====================CloudWatch Log Group for API Gateway
+resource "aws_cloudwatch_log_group" "api_gateway" {
+  name              = "/aws/apigateway/${var.project_name}"
+  retention_in_days = 30
+
+  tags = {
+    Environment = var.environment
+  }
+}
+#=========================
 
