@@ -18,9 +18,6 @@ output "internet_gateway_id" {
   value = module.vpc.internet_gateway_id
 }
 
-# output "alb_dns_name" {
-#   value = module.ec2.alb_dns_name
-# }
 output "alb_end_point_anme" {
   description = "The DNS name of the Load Balancer"
   value       = module.alb.alb_end_point_anme
