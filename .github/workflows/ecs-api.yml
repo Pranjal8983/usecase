@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 jobs:
-  ECS-fargate:
+  ECS-API-uc-10:
     runs-on: ubuntu-latest
 
     defaults:
