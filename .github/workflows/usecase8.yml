@@ -1,4 +1,4 @@
-name: ECS Fargate
+name: ECS Fargate UC-8
 
 on:
  workflow_dispatch:
