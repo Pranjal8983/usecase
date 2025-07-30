@@ -28,7 +28,8 @@ jobs:
           terraform init
           # terraform fmt
           # terraform validate
-          # terraform plan -var-file=terraform.tfvars
+          terraform plan
+          terraform apply -auto-approve
           #terraform destroy -var-file=terraform.tfvars -auto-approve
     
    
